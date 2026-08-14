@@ -45,8 +45,8 @@ TEST(JsonErrorTest, ResolveError) {
 }
 
 TEST(JsonVersionTest, VersionConstants) {
-    EXPECT_STREQ(zuu::json::zuu_json_version, "0.2.0");
+    EXPECT_STREQ(zuu::json::zuu_json_version, "0.3.0");
     EXPECT_EQ(zuu::json::zuu_json_version_major, 0);
-    EXPECT_EQ(zuu::json::zuu_json_version_minor, 2);
+    EXPECT_EQ(zuu::json::zuu_json_version_minor, 3);
     EXPECT_EQ(zuu::json::zuu_json_version_patch, 0);
 }
