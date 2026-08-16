@@ -105,3 +105,26 @@ TEST(DocumentTest, WhitespaceOnlyDocument) {
     EXPECT_FALSE(root_res.has_value());
     EXPECT_EQ(root_res.error(), Error::EmptyValue); 
 }
+
+TEST(DocumentTest, ErrorLocation) {
+    std::string_view json = R"({
+    "valid": 123,
+    "invalid": bad_value
+})";
+    
+    ondemand::Document doc(json);
+    EXPECT_EQ(doc.error(), Error::None);
+    
+    auto invalid_res = doc["invalid"];
+    ASSERT_TRUE(invalid_res.has_value());
+    
+    auto bad_number = invalid_res.value().getNumber();
+    EXPECT_FALSE(bad_number.has_value());
+    EXPECT_EQ(bad_number.error(), Error::InvalidType);
+    
+    // Check if error location is recorded correctly
+    EXPECT_NE(doc.getErrorOffset(), std::string::npos);
+    
+    auto loc = doc.getErrorLocation();
+    EXPECT_EQ(loc.line, 3); // "invalid": bad_value is on line 3 (index 2 in zero-based, plus 1)
+}
