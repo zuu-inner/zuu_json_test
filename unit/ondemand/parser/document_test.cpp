@@ -15,9 +15,30 @@ TEST(DocumentTest, ValidDocument) {
     auto val_res = doc["key"];
     ASSERT_TRUE(val_res.has_value());
     
-    auto str_res = val_res.value().getString();
+    auto str_res = val_res.value().getUnescapedString();
     ASSERT_TRUE(str_res.has_value());
     EXPECT_EQ(str_res.value(), "value");
+}
+
+TEST(DocumentTest, EscapedStringDocument) {
+    std::string_view json = R"({"desc": "Line1\nLine2\t\"Quotes\""})";
+    ondemand::Document doc(json);
+    
+    EXPECT_EQ(doc.error(), Error::None);
+    
+    auto desc_res = doc["desc"];
+    ASSERT_TRUE(desc_res.has_value());
+    
+    auto desc_val = desc_res.value();
+    
+    auto raw_res = doc["desc"].value().getString();
+    ASSERT_TRUE(raw_res.has_value());
+    EXPECT_EQ(raw_res.value(), "Line1\\nLine2\\t\\\"Quotes\\\"");
+
+    // getUnescapedString() returns parsed string with escapes handled
+    auto parsed_res = doc["desc"].value().getUnescapedString();
+    ASSERT_TRUE(parsed_res.has_value());
+    EXPECT_EQ(parsed_res.value(), "Line1\nLine2\t\"Quotes\"");
 }
 
 TEST(DocumentTest, NestedDocument) {
