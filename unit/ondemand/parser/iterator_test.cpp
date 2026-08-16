@@ -109,6 +109,33 @@ TEST(IteratorTest, FindKeyNotFound) {
     EXPECT_EQ(not_found.error(), Error::KeyNotFound);
 }
 
+TEST(IteratorTest, GetLiteral) {
+    std::string_view json = R"({"truth": true, "falsehood": false, "nothing": null})";
+    auto scanner_res = ondemand::parser::Scanner(json);
+    ASSERT_TRUE(scanner_res.has_value());
+    
+    auto indices = scanner_res.value();
+    ondemand::parser::Iterator iter(indices, json);
+
+    auto truth_iter = ondemand::parser::Iterator(iter).findKey("truth");
+    ASSERT_TRUE(truth_iter.has_value());
+    auto truth_val = truth_iter.value().getBool();
+    ASSERT_TRUE(truth_val.has_value());
+    EXPECT_EQ(truth_val.value(), true);
+
+    auto false_iter = ondemand::parser::Iterator(iter).findKey("falsehood");
+    ASSERT_TRUE(false_iter.has_value());
+    auto false_val = false_iter.value().getBool();
+    ASSERT_TRUE(false_val.has_value());
+    EXPECT_EQ(false_val.value(), false);
+
+    auto null_iter = ondemand::parser::Iterator(iter).findKey("nothing");
+    ASSERT_TRUE(null_iter.has_value());
+    auto null_val = null_iter.value().getNull();
+    ASSERT_TRUE(null_val.has_value());
+    EXPECT_EQ(null_val.value(), nullptr);
+}
+
 TEST(IteratorTest, SkipCurrent) {
     std::string_view json = R"([1, {"nested": "value"}, 3])";
     auto scanner_res = ondemand::parser::Scanner(json);

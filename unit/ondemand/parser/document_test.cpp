@@ -37,6 +37,31 @@ TEST(DocumentTest, NestedDocument) {
     EXPECT_DOUBLE_EQ(age_val.value(), 25.0);
 }
 
+TEST(DocumentTest, LiteralDocument) {
+    std::string_view json = R"({"isValid": true, "isDeleted": false, "pointer": null})";
+    ondemand::Document doc(json);
+    
+    EXPECT_EQ(doc.error(), Error::None);
+    
+    auto valid_res = doc["isValid"];
+    ASSERT_TRUE(valid_res.has_value());
+    auto valid_val = valid_res.value().getBool();
+    ASSERT_TRUE(valid_val.has_value());
+    EXPECT_EQ(valid_val.value(), true);
+
+    auto deleted_res = doc["isDeleted"];
+    ASSERT_TRUE(deleted_res.has_value());
+    auto deleted_val = deleted_res.value().getBool();
+    ASSERT_TRUE(deleted_val.has_value());
+    EXPECT_EQ(deleted_val.value(), false);
+
+    auto ptr_res = doc["pointer"];
+    ASSERT_TRUE(ptr_res.has_value());
+    auto ptr_val = ptr_res.value().getNull();
+    ASSERT_TRUE(ptr_val.has_value());
+    EXPECT_EQ(ptr_val.value(), nullptr);
+}
+
 TEST(DocumentTest, EmptyDocument) {
     std::string_view json = "";
     ondemand::Document doc(json);
